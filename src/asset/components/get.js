@@ -1,43 +1,25 @@
-import { useState, useEffect } from "react";
-
+import React, { useState } from "react";
+import ADDAPI from './add';
 
 function GetAPI(props) {
 
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  async function loadData() {
+    const response = await fetch('https://orbit-demo.orbitek.co/db_seed.json');
+    const data = await response.json();
+    setData(data); 
+  }
+  loadData();
 
-  useEffect(() => {
-    fetch('https://orbit-demo.orbitek.co/db_seed.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(
-            `This is an HTTP error: The status is ${response.status}`
-          );
-        }
-        console.log(response.json())
-        return response.json();
-      })
-      .then((actualData) => {
-        setData(actualData.data);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setData(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-
+  const [isVisible , setIsVisible] = useState()
+  function editVisible(){
+    setIsVisible(true);
+  }
+  
   return (
     <div>
-      {loading && <div>A moment please...</div>}
-      {error && (
-        <div>{`There is a problem fetching the post data - ${error}`}</div>
-      )}
+    {isVisible && <ADDAPI />}
+
       <ul>
         {data && data.map(({ id,first_name, last_name, job, description}) => (
         <li key={id}>
@@ -50,8 +32,12 @@ function GetAPI(props) {
             <span className='desc'><small>Description:</small>{description}</span>
           </div>
           <div>
-            <span className='edit'><button className='btn btn-edit'>Edit</button></span>
-            <span className='del'><button className='btn btn-del'>Delete</button></span>
+            <button className='btn btn-edit'onClick={() => {  editVisible() }} >
+              Edit
+            </button>
+            <button className='btn btn-del'>
+              Delete
+            </button>
           </div>
         </li>
         ))}
